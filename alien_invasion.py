@@ -1,6 +1,7 @@
 import sys
 import pygame
 from settings import Settings
+from ship import Ship
 
 class AlienInvasion:
     """Clasa jocului"""
@@ -13,6 +14,8 @@ class AlienInvasion:
         self.screen = pygame.display.set_mode((
             self.settings.screen_width, self.settings.screen_heigth))
         pygame.display.set_caption("Alien Invasion")
+
+        self.ship = Ship(self)
 
         #Setam o culoare de background
         self.bg_color = (self.settings.bg_color)
@@ -27,6 +30,8 @@ class AlienInvasion:
 
             #Rescrie pe ecran pentru fiecare ietarie din loop
             self.screen.fill(self.bg_color)
+
+            self.ship.blitme()
 
             #Make the most recently drawn screen visible
             pygame.display.flip()
