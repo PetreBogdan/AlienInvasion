@@ -1,5 +1,6 @@
 import sys
 import pygame
+from settings import Settings
 
 class AlienInvasion:
     """Clasa jocului"""
@@ -7,12 +8,14 @@ class AlienInvasion:
     def __init__(self):
         """Initializam jocul"""
         pygame.init()
+        self.settings = Settings()
 
-        self.screen = pygame.display.set_mode((1200,800))
+        self.screen = pygame.display.set_mode((
+            self.settings.screen_width, self.settings.screen_heigth))
         pygame.display.set_caption("Alien Invasion")
 
         #Setam o culoare de background
-        self.bg_color = (230,230,230)
+        self.bg_color = (self.settings.bg_color)
 
     def run_game(self):
         """Start main loop"""
