@@ -18,6 +18,7 @@ class Ship:
 
         # Movement flag
         self.moving_right = False
+        self.moving_left = False
 
     def blitme(self):
         """Drawing the ship"""
@@ -27,3 +28,5 @@ class Ship:
         """Updates the ship movement based on the movement flag"""
         if self.moving_right:
             self.rect.x += 1
+        if self.moving_left:
+            self.rect.x -= 1
