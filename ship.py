@@ -2,10 +2,10 @@ import pygame.image
 
 
 class Ship:
-    """O clasa pentru o nava"""
+    """A class for the ship"""
 
     def __init__(self, ai_game):
-        """Initializam nava si pozitia de start"""
+        """Initialize the ship and starting position"""
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
 
@@ -16,6 +16,14 @@ class Ship:
         #Incepe jocul mereu cu o noua nava in centru jos
         self.rect.midbottom = self.screen_rect.midbottom
 
+        # Movement flag
+        self.moving_right = False
+
     def blitme(self):
-        """Deseneaza nava"""
+        """Drawing the ship"""
         self.screen.blit(self.image, self.rect)
+
+    def update(self):
+        """Updates the ship movement based on the movement flag"""
+        if self.moving_right:
+            self.rect.x += 1

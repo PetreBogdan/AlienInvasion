@@ -4,11 +4,11 @@ from settings import Settings
 from ship import Ship
 
 class AlienInvasion:
-    """Clasa jocului"""
+    """The game class"""
 
     def __init__(self):
-        """Initializam jocul"""
-        pygame.init()
+        """Initialize the game"""
+        pygame.init() # Returns True for game is initialized
         self.settings = Settings()
 
         self.screen = pygame.display.set_mode((
@@ -17,28 +17,42 @@ class AlienInvasion:
 
         self.ship = Ship(self)
 
-        #Setam o culoare de background
+        # Setting a background color
         self.bg_color = (self.settings.bg_color)
+
 
     def run_game(self):
         """Start main loop"""
         while True:
-             # Watch fr keyboard and mouse events.
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    sys.exit()
+            self._check_events() # Refracting the code to be easer to read
+            self._update_screen()
+            self.ship.update()
 
-            #Rescrie pe ecran pentru fiecare ietarie din loop
-            self.screen.fill(self.bg_color)
 
-            self.ship.blitme()
+    def _check_events(self):
+        # Watch fr keyboard and mouse events.
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT:
+                    self.ship.moving_right = False
 
-            #Make the most recently drawn screen visible
-            pygame.display.flip()
+
+    def _update_screen(self):
+        # Rewrite the screen for every loop in the run_game()
+        self.screen.fill(self.bg_color)
+        self.ship.blitme()
+
+        # Make the most recently drawn screen visible
+        pygame.display.flip()
 
 
 if __name__== '__main__':
-    #Se creeasa o instanta de joc
+    # Creates an instance of a game
 
     ai = AlienInvasion()
     ai.run_game()
