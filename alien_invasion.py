@@ -1,9 +1,13 @@
 import sys
 import pygame
+from time import sleep
+from game_stats import GameStats
 from settings import Settings
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from button import Button
+
 
 class AlienInvasion:
     """The game class"""
@@ -31,15 +35,24 @@ class AlienInvasion:
         # Setting a background color
         self.bg_color = (self.settings.bg_color)
 
+        # Create an instance of the store game stats
+        self.stats = GameStats(self) # self is ai_game argument
+
+        # mage the Play button
+        self.play_button = Button(self, "Play")
+
 
     def run_game(self):
         """Start main loop"""
         while True:
             self._check_events() # Refracting the code to be easer to read
+
+            if self.stats.game_active:
+                self.ship.update()
+                self._update_bullets()
+                self._update_aliens()
+
             self._update_screen()
-            self.ship.update()
-            self._update_bullets()
-            self._update_aliens()
 
 
     def _update_bullets(self): # Refracting again
@@ -103,6 +116,46 @@ class AlienInvasion:
         self._check_fleet_edges()
         self.aliens.update()
 
+        # Look for alien-ship collision
+
+        if pygame.sprite.spritecollideany(self.ship, self.aliens):
+            self._ship_hit()
+
+        # Look for aliens that hit the bottom
+        self._chech_aliens_bottom()
+
+    def _chech_aliens_bottom(self):
+        """Check if any aliens have reached the bottom of the screen"""
+        screen_rect = self.screen.get_rect()
+        for alien in self.aliens.sprites():
+            if alien.rect.bottom >= screen_rect.bottom:
+                #Treating this as the ship got hit
+                self._ship_hit()
+                break
+
+
+    def _ship_hit(self):
+        """Responds to the ship being hit"""
+        # Decrement ships left
+        if self.stats.ships_left > 0:
+            self.stats.ships_left -= 1
+
+            # Get rid of anything besides ship
+            self.aliens.empty()
+            self.bullets.empty()
+
+            # Create a new fleet and center the ship
+            self._create_fleet()
+            self.ship.center_ship()
+
+            # Pause.
+            sleep(0.5)
+        else:
+            self.stats.game_active = False
+            pygame.mouse.set_visible(True)
+
+
+
     def _check_fleet_edges(self):
         """If reaching the edges"""
         for alien in self.aliens.sprites():
@@ -122,12 +175,33 @@ class AlienInvasion:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                self._check_play_button(mouse_pos)
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)
 
             elif event.type == pygame.KEYUP:
                 self._check_keyup_events(event)
 
+    def _check_play_button(self, mouse_pos):
+        """Start the game when the player clicks the button"""
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.stats.game_active:
+            # Reset the game stats
+            self.stats.reset_stats()
+            self.stats.game_active = True
+
+            # Erase the remainging aliens and bullets
+            self.aliens.empty()
+            self.bullets.empty()
+
+            # Creates a new fleet and ceter the ship
+            self._create_fleet()
+            self.ship.center_ship()
+
+            # Hide mouse cursos
+            pygame.mouse.set_visible(False)
 
     def _check_keydown_events(self, event): # Refractoring again
         '''Keypresses'''
@@ -161,6 +235,10 @@ class AlienInvasion:
             bullet.draw_bullet()
 
         self.aliens.draw(self.screen)
+
+        # Draw the play button if the game is inactive
+        if not self.stats.game_active:
+            self.play_button.draw_button()
 
         # Make the most recently drawn screen visible
         pygame.display.flip()
